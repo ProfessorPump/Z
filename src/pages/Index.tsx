@@ -1,12 +1,43 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { RecipeSwiper } from '@/components/RecipeSwiper';
+import { sampleRecipes } from '@/data/recipes';
+import { Recipe } from '@/types/recipe';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
+  const [recipes, setRecipes] = useState<Recipe[]>(sampleRecipes);
+  const { toast } = useToast();
+
+  const handleLike = (recipeId: string) => {
+    setRecipes(prev => 
+      prev.map(recipe => {
+        if (recipe.id === recipeId) {
+          const newIsLiked = !recipe.isLiked;
+          const newLikes = newIsLiked ? recipe.likes + 1 : recipe.likes - 1;
+          
+          // Show toast notification
+          toast({
+            title: newIsLiked ? "Recipe liked! ❤️" : "Recipe unliked",
+            description: newIsLiked 
+              ? `${recipe.title} added to your favorites` 
+              : `${recipe.title} removed from favorites`,
+            duration: 2000,
+          });
+          
+          return {
+            ...recipe,
+            isLiked: newIsLiked,
+            likes: newLikes
+          };
+        }
+        return recipe;
+      })
+    );
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="w-full h-screen overflow-hidden">
+      <RecipeSwiper recipes={recipes} onLike={handleLike} />
     </div>
   );
 };
