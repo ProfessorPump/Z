@@ -11,4 +11,6 @@ export interface Recipe {
   tags: string[];
   likes: number;
   isLiked: boolean;
+  mealType: 'homemade' | 'dine-out';
+  dietaryPreferences: string[];
 }

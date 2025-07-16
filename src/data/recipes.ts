@@ -35,7 +35,9 @@ export const sampleRecipes: Recipe[] = [
     ],
     tags: ['pasta', 'chicken', 'creamy', 'dinner'],
     likes: 1247,
-    isLiked: false
+    isLiked: false,
+    mealType: 'homemade',
+    dietaryPreferences: []
   },
   {
     id: '2',
@@ -66,7 +68,9 @@ export const sampleRecipes: Recipe[] = [
     ],
     tags: ['pizza', 'italian', 'vegetarian', 'classic'],
     likes: 2156,
-    isLiked: true
+    isLiked: true,
+    mealType: 'dine-out',
+    dietaryPreferences: ['vegetarian']
   },
   {
     id: '3',
@@ -98,7 +102,9 @@ export const sampleRecipes: Recipe[] = [
     ],
     tags: ['salad', 'healthy', 'vegetarian', 'quick'],
     likes: 892,
-    isLiked: false
+    isLiked: false,
+    mealType: 'homemade',
+    dietaryPreferences: ['vegetarian', 'vegan', 'gluten-free']
   },
   {
     id: '4',
@@ -131,6 +137,8 @@ export const sampleRecipes: Recipe[] = [
     ],
     tags: ['dessert', 'chocolate', 'warm', 'indulgent'],
     likes: 3421,
-    isLiked: true
+    isLiked: true,
+    mealType: 'dine-out',
+    dietaryPreferences: ['vegetarian']
   }
 ];
