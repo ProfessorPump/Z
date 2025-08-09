@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Plus, Check, X, ShoppingCart } from 'lucide-react';
+import { Plus, Check, X, ShoppingCart, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface ShoppingItem {
   id: string;
@@ -19,6 +20,18 @@ const ShoppingList = () => {
     { id: '4', name: 'Extra virgin olive oil', completed: false },
   ]);
   const [newItem, setNewItem] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All Lists');
+
+  const categories = [
+    'All Lists',
+    'Groceries',
+    'Weekly Essentials',
+    'Party Planning',
+    'Meal Prep',
+    'Pantry Staples',
+    'Fresh Produce'
+  ];
 
   const addItem = () => {
     if (newItem.trim()) {
@@ -45,7 +58,49 @@ const ShoppingList = () => {
 
   return (
     <div className="pb-20 pt-4 px-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-6">Shopping List</h1>
+      <div className="mb-6">
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-foreground">Shopping List</h1>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-2">
+                <ChevronDown 
+                  className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+                />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          
+          <CollapsibleContent className="mt-4">
+            <div className="bg-card border rounded-lg p-4 space-y-2">
+              <p className="text-sm font-medium text-muted-foreground mb-3">Shopping Lists</p>
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                    selectedCategory === category 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+        
+        {selectedCategory !== 'All Lists' && (
+          <div className="mt-3">
+            <span className="text-sm text-muted-foreground">Current list: </span>
+            <span className="text-sm font-medium text-foreground">{selectedCategory}</span>
+          </div>
+        )}
+      </div>
       
       <div className="space-y-6">
         {/* Add new item */}
