@@ -50,8 +50,8 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
 
       {/* Content Overlay */}
       <div className="relative z-10 h-full flex flex-col justify-between p-6 text-white">
-        {/* Top Section - Tags & Difficulty */}
-        <div className="flex justify-between items-start animate-slide-up">
+        {/* Top Section - Tags */}
+        <div className="flex justify-start items-start animate-slide-up">
           <div className="flex flex-wrap gap-2">
             {recipe.tags.slice(0, 2).map((tag) => (
               <span
@@ -61,10 +61,6 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
                 #{tag}
               </span>
             ))}
-          </div>
-          <div className={cn("flex items-center gap-1 font-semibold", getDifficultyColor(recipe.difficulty))}>
-            <ChefHat className="w-4 h-4" />
-            <span className="text-sm">{recipe.difficulty}</span>
           </div>
         </div>
 

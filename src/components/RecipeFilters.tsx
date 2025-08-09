@@ -40,7 +40,7 @@ export function RecipeFilters({
   };
 
   return (
-    <div className="absolute top-6 left-6 z-30 flex flex-col gap-3">
+    <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 flex flex-col gap-3 items-center">
       {/* Meal Type Filter */}
       <div className="flex gap-2">
         <Button

@@ -99,27 +99,6 @@ export function RecipeSwiper({ recipes, onLike }: RecipeSwiperProps) {
         ))}
       </div>
 
-      {/* Navigation Indicators */}
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2">
-        {recipes.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => {
-              if (!isTransitioning && index !== currentIndex) {
-                setIsTransitioning(true);
-                setCurrentIndex(index);
-                setTimeout(() => setIsTransitioning(false), 400);
-              }
-            }}
-            className={cn(
-              "w-2 h-8 rounded-full transition-all duration-300",
-              index === currentIndex
-                ? "bg-recipe-primary shadow-warm"
-                : "bg-white/30 hover:bg-white/50"
-            )}
-          />
-        ))}
-      </div>
 
       {/* Navigation Buttons */}
       <div className="absolute left-4 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-4">
@@ -152,12 +131,6 @@ export function RecipeSwiper({ recipes, onLike }: RecipeSwiperProps) {
         </Button>
       </div>
 
-      {/* Recipe Counter */}
-      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30">
-        <div className="bg-black/30 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm font-medium">
-          {currentIndex + 1} / {recipes.length}
-        </div>
-      </div>
 
       {/* Swipe Hint */}
       {currentIndex === 0 && (
