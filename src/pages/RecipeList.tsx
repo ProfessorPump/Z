@@ -1,15 +1,71 @@
 import { useState } from 'react';
-import { Heart, Clock, Users } from 'lucide-react';
+import { Heart, Clock, Users, ChevronDown } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { sampleRecipes } from '@/data/recipes';
 
 const RecipeList = () => {
   const [likedRecipes] = useState(sampleRecipes.filter(recipe => recipe.isLiked));
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All Recipes');
+
+  const categories = [
+    'All Recipes',
+    'Breakfast',
+    'Asian Favorites', 
+    'Healthy',
+    'Dinner',
+    'Fast & Quick',
+    'Desserts'
+  ];
 
   return (
     <div className="pb-20 pt-4 px-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-6">My Recipes</h1>
+      <div className="mb-6">
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-foreground">My Recipes</h1>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-2">
+                <ChevronDown 
+                  className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+                />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          
+          <CollapsibleContent className="mt-4">
+            <div className="bg-card border rounded-lg p-4 space-y-2">
+              <p className="text-sm font-medium text-muted-foreground mb-3">Recipe Categories</p>
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                    selectedCategory === category 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+        
+        {selectedCategory !== 'All Recipes' && (
+          <div className="mt-3">
+            <span className="text-sm text-muted-foreground">Showing: </span>
+            <span className="text-sm font-medium text-foreground">{selectedCategory}</span>
+          </div>
+        )}
+      </div>
       
       <Tabs defaultValue="saved" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
