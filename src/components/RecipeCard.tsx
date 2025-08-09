@@ -53,18 +53,6 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
 
         {/* Bottom Section - Recipe Info */}
         <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          {/* Recipe Tags */}
-          <div className="flex flex-wrap gap-2">
-            {recipe.tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 bg-black/30 backdrop-blur-sm rounded-full text-sm font-medium"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-
           {/* Recipe Stats */}
           <div className="flex items-center gap-6 text-sm">
             <div className="flex items-center gap-1">
@@ -79,6 +67,18 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
               <Heart className={cn("w-4 h-4", recipe.isLiked ? "text-recipe-accent fill-current" : "text-white")} />
               <span>{recipe.likes.toLocaleString()}</span>
             </div>
+          </div>
+
+          {/* Recipe Tags */}
+          <div className="flex flex-wrap gap-2">
+            {recipe.tags.slice(0, 2).map((tag) => (
+              <span
+                key={tag}
+                className="px-3 py-1 bg-black/30 backdrop-blur-sm rounded-full text-sm font-medium"
+              >
+                #{tag}
+              </span>
+            ))}
           </div>
 
           {/* Recipe Title & Description */}
