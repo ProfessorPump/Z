@@ -44,28 +44,58 @@ export function CountryFilter({ countryFilter, onCountryFilterChange }: CountryF
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-48 p-2 bg-black/90 backdrop-blur-sm border-white/20" 
+          className="w-64 h-64 p-4 bg-black/90 backdrop-blur-sm border-white/20 rounded-full" 
           align="end"
           sideOffset={8}
         >
-          <div className="grid grid-cols-2 gap-1">
-            {countries.map((country) => (
-              <button
-                key={country.code}
-                onClick={() => {
-                  onCountryFilterChange(country.code);
-                  setIsOpen(false);
-                }}
-                className={cn(
-                  "flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-colors",
-                  "hover:bg-white/10 text-white",
-                  countryFilter === country.code && "bg-recipe-primary"
-                )}
-              >
-                <span className="text-sm">{country.flag}</span>
-                <span className="text-xs truncate">{country.name}</span>
-              </button>
-            ))}
+          <div className="relative w-full h-full">
+            {/* Center "All" button */}
+            <button
+              onClick={() => {
+                onCountryFilterChange('all');
+                setIsOpen(false);
+              }}
+              className={cn(
+                "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
+                "w-12 h-12 rounded-full flex items-center justify-center",
+                "transition-colors text-lg",
+                "hover:bg-white/10 text-white",
+                countryFilter === 'all' && "bg-recipe-primary"
+              )}
+            >
+              🏳️
+            </button>
+            
+            {/* Country flags arranged in a circle */}
+            {countries.slice(1).map((country, index) => {
+              const angle = (index * 360) / (countries.length - 1);
+              const radius = 80;
+              const x = Math.cos((angle * Math.PI) / 180) * radius;
+              const y = Math.sin((angle * Math.PI) / 180) * radius;
+              
+              return (
+                <button
+                  key={country.code}
+                  onClick={() => {
+                    onCountryFilterChange(country.code);
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    "absolute w-10 h-10 rounded-full flex items-center justify-center",
+                    "transition-all duration-200 text-sm",
+                    "hover:bg-white/10 text-white hover:scale-110",
+                    countryFilter === country.code && "bg-recipe-primary scale-110"
+                  )}
+                  style={{
+                    left: `calc(50% + ${x}px - 20px)`,
+                    top: `calc(50% + ${y}px - 20px)`,
+                  }}
+                  title={country.name}
+                >
+                  {country.flag}
+                </button>
+              );
+            })}
           </div>
         </PopoverContent>
       </Popover>
