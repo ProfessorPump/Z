@@ -40,9 +40,47 @@ export function RecipeFilters({
   };
 
   return (
-    <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 flex flex-col gap-3 items-center">
-      {/* Meal Type Filter */}
-      <div className="flex gap-2">
+    <>
+      {/* Filter button in top left */}
+      <div className="absolute top-6 left-6 z-30">
+        <div className="flex flex-col gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDietary(!showDietary)}
+            className={cn(
+              "bg-black/30 backdrop-blur-sm border-white/30 text-white text-xs w-fit",
+              "hover:bg-white/20",
+              dietaryFilter.length > 0 && "bg-recipe-primary border-recipe-primary"
+            )}
+          >
+            <Filter className="w-3 h-3 mr-1" />
+            Filter {dietaryFilter.length > 0 && `(${dietaryFilter.length})`}
+          </Button>
+
+          {showDietary && (
+            <div className="flex flex-wrap gap-1 max-w-48">
+              {dietaryOptions.map(option => (
+                <Badge
+                  key={option}
+                  variant={dietaryFilter.includes(option) ? 'default' : 'outline'}
+                  className={cn(
+                    "text-xs cursor-pointer bg-black/30 backdrop-blur-sm border-white/30 text-white",
+                    "hover:bg-white/20",
+                    dietaryFilter.includes(option) && "bg-recipe-primary border-recipe-primary text-white"
+                  )}
+                  onClick={() => toggleDietaryPreference(option)}
+                >
+                  {option}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Meal Type Filter in center */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
         <Button
           variant={mealTypeFilter === 'homemade' ? 'default' : 'outline'}
           size="sm"
@@ -71,42 +109,6 @@ export function RecipeFilters({
           Dine Out
         </Button>
       </div>
-
-      {/* Dietary Filter */}
-      <div className="flex flex-col gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowDietary(!showDietary)}
-          className={cn(
-            "bg-black/30 backdrop-blur-sm border-white/30 text-white text-xs w-fit",
-            "hover:bg-white/20",
-            dietaryFilter.length > 0 && "bg-recipe-primary border-recipe-primary"
-          )}
-        >
-          <Filter className="w-3 h-3 mr-1" />
-          Dietary {dietaryFilter.length > 0 && `(${dietaryFilter.length})`}
-        </Button>
-
-        {showDietary && (
-          <div className="flex flex-wrap gap-1 max-w-48">
-            {dietaryOptions.map(option => (
-              <Badge
-                key={option}
-                variant={dietaryFilter.includes(option) ? 'default' : 'outline'}
-                className={cn(
-                  "text-xs cursor-pointer bg-black/30 backdrop-blur-sm border-white/30 text-white",
-                  "hover:bg-white/20",
-                  dietaryFilter.includes(option) && "bg-recipe-primary border-recipe-primary text-white"
-                )}
-                onClick={() => toggleDietaryPreference(option)}
-              >
-                {option}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    </>
   );
 }
