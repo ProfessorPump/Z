@@ -48,7 +48,7 @@ export function CountryFilter({ countryFilter, onCountryFilterChange }: CountryF
           align="end"
           sideOffset={8}
         >
-          <div className="max-h-52 overflow-y-auto space-y-1 pr-2">
+          <div className="max-h-52 overflow-y-auto space-y-1 pr-2 scrollbar-custom">
             {countries.map((country) => (
               <button
                 key={country.code}
