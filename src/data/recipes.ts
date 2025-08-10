@@ -37,7 +37,8 @@ export const sampleRecipes: Recipe[] = [
     likes: 1247,
     isLiked: false,
     mealType: 'homemade',
-    dietaryPreferences: []
+    dietaryPreferences: [],
+    country: 'italy'
   },
   {
     id: '2',
@@ -70,7 +71,8 @@ export const sampleRecipes: Recipe[] = [
     likes: 2156,
     isLiked: true,
     mealType: 'dine-out',
-    dietaryPreferences: ['vegetarian']
+    dietaryPreferences: ['vegetarian'],
+    country: 'italy'
   },
   {
     id: '3',
@@ -104,7 +106,8 @@ export const sampleRecipes: Recipe[] = [
     likes: 892,
     isLiked: false,
     mealType: 'homemade',
-    dietaryPreferences: ['vegetarian', 'vegan', 'gluten-free']
+    dietaryPreferences: ['vegetarian', 'vegan', 'gluten-free'],
+    country: 'usa'
   },
   {
     id: '4',
@@ -139,6 +142,7 @@ export const sampleRecipes: Recipe[] = [
     likes: 3421,
     isLiked: true,
     mealType: 'dine-out',
-    dietaryPreferences: ['vegetarian']
+    dietaryPreferences: ['vegetarian'],
+    country: 'france'
   }
 ];

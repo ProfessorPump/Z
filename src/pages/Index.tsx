@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { RecipeSwiper } from '@/components/RecipeSwiper';
 import { RecipeFilters, MealTypeFilter, DietaryFilter } from '@/components/RecipeFilters';
+import { CountryFilter, CountryFilter as CountryFilterType } from '@/components/CountryFilter';
 import { sampleRecipes } from '@/data/recipes';
 import { Recipe } from '@/types/recipe';
 import { useToast } from '@/hooks/use-toast';
@@ -9,12 +10,18 @@ const Index = () => {
   const [recipes, setRecipes] = useState<Recipe[]>(sampleRecipes);
   const [mealTypeFilter, setMealTypeFilter] = useState<MealTypeFilter>('all');
   const [dietaryFilter, setDietaryFilter] = useState<DietaryFilter>([]);
+  const [countryFilter, setCountryFilter] = useState<CountryFilterType>('all');
   const { toast } = useToast();
 
   const filteredRecipes = useMemo(() => {
     return recipes.filter(recipe => {
       // Filter by meal type
       if (mealTypeFilter !== 'all' && recipe.mealType !== mealTypeFilter) {
+        return false;
+      }
+
+      // Filter by country
+      if (countryFilter !== 'all' && recipe.country !== countryFilter) {
         return false;
       }
 
@@ -27,7 +34,7 @@ const Index = () => {
 
       return true;
     });
-  }, [recipes, mealTypeFilter, dietaryFilter]);
+  }, [recipes, mealTypeFilter, dietaryFilter, countryFilter]);
 
   const handleLike = (recipeId: string) => {
     setRecipes(prev => 
@@ -63,6 +70,10 @@ const Index = () => {
         dietaryFilter={dietaryFilter}
         onMealTypeChange={setMealTypeFilter}
         onDietaryFilterChange={setDietaryFilter}
+      />
+      <CountryFilter
+        countryFilter={countryFilter}
+        onCountryFilterChange={setCountryFilter}
       />
       <RecipeSwiper recipes={filteredRecipes} onLike={handleLike} />
       
