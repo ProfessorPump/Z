@@ -32,13 +32,20 @@ export const BottomNavigation = () => {
         ))}
         
         {/* Center Create Button */}
-        <button
-          onClick={() => window.location.pathname !== '/shopping' && (window.location.href = '/shopping')}
-          className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+        <NavLink
+          to="/create"
+          className={({ isActive }) =>
+            cn(
+              "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors",
+              isActive
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )
+          }
         >
           <Plus size={20} />
           <span className="text-xs font-medium">Create</span>
-        </button>
+        </NavLink>
         
         {navItems.slice(2).map(({ icon: Icon, label, path }) => (
           <NavLink
