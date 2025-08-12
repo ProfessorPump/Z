@@ -31,13 +31,13 @@ export const BottomNavigation = () => {
           </NavLink>
         ))}
         
-        {/* Center Add Button */}
+        {/* Center Create Button */}
         <button
           onClick={() => window.location.pathname !== '/shopping' && (window.location.href = '/shopping')}
           className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
         >
           <Plus size={20} />
-          <span className="text-xs font-medium">Add</span>
+          <span className="text-xs font-medium">Create</span>
         </button>
         
         {navItems.slice(2).map(({ icon: Icon, label, path }) => (
