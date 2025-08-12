@@ -1,12 +1,12 @@
-import { Home, List, ShoppingCart, ScanLine, User } from 'lucide-react';
+import { Home, List, ShoppingCart, Plus, User } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
   { icon: List, label: 'Recipes', path: '/recipes' },
+  { icon: Plus, label: 'Add', path: '/shopping' },
   { icon: ShoppingCart, label: 'Shopping', path: '/shopping' },
-  { icon: ScanLine, label: 'Scanner', path: '/scanner' },
   { icon: User, label: 'Profile', path: '/profile' },
 ];
 

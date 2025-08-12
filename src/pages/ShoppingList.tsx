@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Plus, Check, X, ShoppingCart, ChevronDown } from 'lucide-react';
+import { Plus, Check, X, ShoppingCart, ChevronDown, ScanLine, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ShoppingItem {
   id: string;
@@ -22,6 +23,8 @@ const ShoppingList = () => {
   const [newItem, setNewItem] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All Lists');
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
 
   const categories = [
     'All Lists',
@@ -51,6 +54,48 @@ const ShoppingList = () => {
 
   const removeItem = (id: string) => {
     setItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const simulateScan = () => {
+    setIsScanning(true);
+    setScanResult(null);
+    
+    // Simulate scanning delay
+    setTimeout(() => {
+      const products = [
+        'Organic Milk',
+        'Whole Wheat Bread',
+        'Free Range Eggs',
+        'Greek Yogurt',
+        'Bananas',
+        'Chicken Breast',
+        'Brown Rice',
+        'Olive Oil'
+      ];
+      
+      const randomProduct = products[Math.floor(Math.random() * products.length)];
+      setScanResult(randomProduct);
+      setIsScanning(false);
+    }, 2000);
+  };
+
+  const addScannedItem = () => {
+    if (scanResult) {
+      addItemByName(scanResult);
+      setScanResult(null);
+    }
+  };
+
+  const addItemByName = (itemName: string) => {
+    setItems(prev => [
+      ...prev,
+      { id: Date.now().toString(), name: itemName, completed: false }
+    ]);
+  };
+
+  const resetScan = () => {
+    setScanResult(null);
+    setIsScanning(false);
   };
 
   const pendingItems = items.filter(item => !item.completed);
@@ -117,6 +162,80 @@ const ShoppingList = () => {
               <Button onClick={addItem} size="icon">
                 <Plus size={20} />
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Scanner Section */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center space-y-4">
+              <h3 className="text-lg font-semibold text-foreground">Product Scanner</h3>
+              
+              {!scanResult && !isScanning && (
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-2">
+                    <Button 
+                      onClick={simulateScan}
+                      className="w-full"
+                    >
+                      <ScanLine className="mr-2 h-4 w-4" />
+                      Start Scanner
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Camera className="mr-2 h-4 w-4" />
+                      Upload from Gallery
+                    </Button>
+                  </div>
+                  
+                  <Alert>
+                    <AlertDescription className="text-sm text-center">
+                      Point your camera at a product barcode to scan, or upload an image from your gallery.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+
+              {isScanning && (
+                <div className="space-y-4">
+                  <div className="animate-pulse">
+                    <div className="w-32 h-32 mx-auto bg-primary/20 rounded-lg flex items-center justify-center">
+                      <ScanLine className="h-12 w-12 text-primary animate-bounce" />
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground">Scanning product...</p>
+                </div>
+              )}
+
+              {scanResult && !isScanning && (
+                <div className="space-y-4">
+                  <div className="p-4 bg-secondary rounded-lg">
+                    <h4 className="font-semibold text-foreground mb-2">Product Found:</h4>
+                    <p className="text-lg text-primary font-medium">{scanResult}</p>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={addScannedItem}
+                      className="flex-1"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add to List
+                    </Button>
+                    <Button 
+                      onClick={resetScan}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Scan Another
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
