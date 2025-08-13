@@ -11,14 +11,18 @@ interface ShoppingItem {
   id: string;
   name: string;
   completed: boolean;
+  category: string;
+  source: 'recipe' | 'manual'; // Track if item is from recipe or manually added
 }
 
 const ShoppingList = () => {
   const [items, setItems] = useState<ShoppingItem[]>([
-    { id: '1', name: 'Fresh basil', completed: false },
-    { id: '2', name: 'Mozzarella cheese', completed: true },
-    { id: '3', name: 'San Marzano tomatoes', completed: false },
-    { id: '4', name: 'Extra virgin olive oil', completed: false },
+    { id: '1', name: 'Fresh basil', completed: false, category: 'Produce', source: 'recipe' },
+    { id: '2', name: 'Mozzarella cheese', completed: true, category: 'Dairy', source: 'recipe' },
+    { id: '3', name: 'San Marzano tomatoes', completed: false, category: 'Canned Goods', source: 'recipe' },
+    { id: '4', name: 'Extra virgin olive oil', completed: false, category: 'Oils & Condiments', source: 'recipe' },
+    { id: '5', name: 'Paper towels', completed: false, category: 'Household', source: 'manual' },
+    { id: '6', name: 'Apples', completed: false, category: 'Produce', source: 'manual' },
   ]);
   const [newItem, setNewItem] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -26,21 +30,33 @@ const ShoppingList = () => {
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
 
-  const categories = [
-    'All Lists',
-    'Groceries',
-    'Weekly Essentials',
-    'Party Planning',
-    'Meal Prep',
-    'Pantry Staples',
-    'Fresh Produce'
+  const shoppingCategories = [
+    'Produce',
+    'Meat & Seafood', 
+    'Dairy',
+    'Bakery',
+    'Frozen',
+    'Canned Goods',
+    'Dry Goods',
+    'Oils & Condiments',
+    'Spices & Herbs',
+    'Beverages',
+    'Snacks',
+    'Household',
+    'Other'
   ];
 
-  const addItem = () => {
+  const addItem = (category: string = 'Other') => {
     if (newItem.trim()) {
       setItems(prev => [
         ...prev,
-        { id: Date.now().toString(), name: newItem.trim(), completed: false }
+        { 
+          id: Date.now().toString(), 
+          name: newItem.trim(), 
+          completed: false, 
+          category, 
+          source: 'manual' 
+        }
       ]);
       setNewItem('');
     }
@@ -86,10 +102,16 @@ const ShoppingList = () => {
     }
   };
 
-  const addItemByName = (itemName: string) => {
+  const addItemByName = (itemName: string, category: string = 'Other') => {
     setItems(prev => [
       ...prev,
-      { id: Date.now().toString(), name: itemName, completed: false }
+      { 
+        id: Date.now().toString(), 
+        name: itemName, 
+        completed: false, 
+        category, 
+        source: 'manual' 
+      }
     ]);
   };
 
@@ -98,53 +120,100 @@ const ShoppingList = () => {
     setIsScanning(false);
   };
 
-  const pendingItems = items.filter(item => !item.completed);
-  const completedItems = items.filter(item => item.completed);
+  const recipeItems = items.filter(item => item.source === 'recipe');
+  const manualItems = items.filter(item => item.source === 'manual');
+  
+  // Group items by category for organized shopping
+  const groupItemsByCategory = (itemsList: ShoppingItem[]) => {
+    const grouped = itemsList.reduce((acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    }, {} as Record<string, ShoppingItem[]>);
+    
+    // Sort categories by predefined order
+    const sortedCategories = shoppingCategories.filter(cat => grouped[cat]);
+    return sortedCategories.map(category => ({
+      category,
+      items: grouped[category].sort((a, b) => a.name.localeCompare(b.name))
+    }));
+  };
+
+  const renderCategorySection = (categoryData: {category: string, items: ShoppingItem[]}, isRecipe: boolean) => {
+    const uncompleted = categoryData.items.filter(item => !item.completed);
+    const completed = categoryData.items.filter(item => item.completed);
+    
+    if (uncompleted.length === 0 && completed.length === 0) return null;
+
+    return (
+      <div key={categoryData.category} className="mb-4">
+        <h3 className={`text-sm font-semibold mb-2 px-2 py-1 rounded-md inline-block ${
+          isRecipe 
+            ? 'bg-primary/20 text-primary border border-primary/30' 
+            : 'bg-secondary/20 text-secondary border border-secondary/30'
+        }`}>
+          [{categoryData.category}]
+        </h3>
+        <div className="space-y-2 ml-4">
+          {/* Uncompleted items */}
+          {uncompleted.map(item => (
+            <Card key={item.id}>
+              <CardContent className="p-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={item.completed}
+                    onCheckedChange={() => toggleItem(item.id)}
+                  />
+                  <span className="flex-1 text-foreground">{item.name}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeItem(item.id)}
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  >
+                    <X size={16} />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          
+          {/* Completed items */}
+          {completed.map(item => (
+            <Card key={item.id} className="opacity-60">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={item.completed}
+                    onCheckedChange={() => toggleItem(item.id)}
+                  />
+                  <span className="flex-1 text-muted-foreground line-through">
+                    {item.name}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeItem(item.id)}
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  >
+                    <X size={16} />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="pb-20 pt-4 px-4 max-w-md mx-auto">
       <div className="mb-6">
-        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-foreground">Shopping List</h1>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm" className="p-2">
-                <ChevronDown 
-                  className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-                />
-              </Button>
-            </CollapsibleTrigger>
-          </div>
-          
-          <CollapsibleContent className="mt-4">
-            <div className="bg-card border rounded-lg p-4 space-y-2">
-              <p className="text-sm font-medium text-muted-foreground mb-3">Shopping Lists</p>
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                    selectedCategory === category 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'hover:bg-accent hover:text-accent-foreground'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-        
-        {selectedCategory !== 'All Lists' && (
-          <div className="mt-3">
-            <span className="text-sm text-muted-foreground">Current list: </span>
-            <span className="text-sm font-medium text-foreground">{selectedCategory}</span>
-          </div>
-        )}
+        <h1 className="text-2xl font-bold text-foreground">Shopping List</h1>
+        <p className="text-sm text-muted-foreground mt-1">Organized by category for easier shopping</p>
       </div>
       
       <div className="space-y-6">
@@ -159,7 +228,7 @@ const ShoppingList = () => {
                 onKeyPress={(e) => e.key === 'Enter' && addItem()}
                 className="flex-1"
               />
-              <Button onClick={addItem} size="icon">
+              <Button onClick={() => addItem()} size="icon">
                 <Plus size={20} />
               </Button>
             </div>
@@ -240,69 +309,33 @@ const ShoppingList = () => {
           </CardContent>
         </Card>
 
-        {/* Pending items */}
-        {pendingItems.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-foreground mb-3">
-              To Buy ({pendingItems.length})
-            </h2>
-            <div className="space-y-2">
-              {pendingItems.map(item => (
-                <Card key={item.id}>
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        checked={item.completed}
-                        onCheckedChange={() => toggleItem(item.id)}
-                      />
-                      <span className="flex-1 text-foreground">{item.name}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeItem(item.id)}
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      >
-                        <X size={16} />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+        {/* Recipe Items Section */}
+        {recipeItems.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold text-foreground">Rezept Zutaten</h2>
+              <div className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded-md text-xs font-medium">
+                {recipeItems.filter(item => !item.completed).length} von {recipeItems.length}
+              </div>
             </div>
+            {groupItemsByCategory(recipeItems).map(categoryData => 
+              renderCategorySection(categoryData, true)
+            )}
           </div>
         )}
 
-        {/* Completed items */}
-        {completedItems.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-muted-foreground mb-3">
-              Completed ({completedItems.length})
-            </h2>
-            <div className="space-y-2">
-              {completedItems.map(item => (
-                <Card key={item.id} className="opacity-60">
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        checked={item.completed}
-                        onCheckedChange={() => toggleItem(item.id)}
-                      />
-                      <span className="flex-1 text-muted-foreground line-through">
-                        {item.name}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeItem(item.id)}
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      >
-                        <X size={16} />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+        {/* Manual Items Section */}
+        {manualItems.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold text-foreground">Manuell Hinzugefügt</h2>
+              <div className="bg-secondary/20 text-secondary border border-secondary/30 px-2 py-1 rounded-md text-xs font-medium">
+                {manualItems.filter(item => !item.completed).length} von {manualItems.length}
+              </div>
             </div>
+            {groupItemsByCategory(manualItems).map(categoryData => 
+              renderCategorySection(categoryData, false)
+            )}
           </div>
         )}
 
