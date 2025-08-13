@@ -44,7 +44,7 @@ export const BottomNavigation = () => {
           }
         >
           <Plus size={20} />
-          <span className="text-xs font-medium">Create</span>
+          <span className="text-xs font-medium">Cook</span>
         </NavLink>
         
         {navItems.slice(2).map(({ icon: Icon, label, path }) => (
