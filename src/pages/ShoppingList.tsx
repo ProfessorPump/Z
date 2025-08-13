@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Plus, Check, X, ShoppingCart, ChevronDown, ScanLine, Camera } from 'lucide-react';
+import { Plus, Check, X, ShoppingCart, ChevronDown, ScanLine, Camera, List, Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ShoppingItem {
   id: string;
@@ -15,20 +16,44 @@ interface ShoppingItem {
   source: 'recipe' | 'manual'; // Track if item is from recipe or manually added
 }
 
+interface ShoppingListData {
+  id: string;
+  name: string;
+  items: ShoppingItem[];
+}
+
 const ShoppingList = () => {
-  const [items, setItems] = useState<ShoppingItem[]>([
-    { id: '1', name: 'Fresh basil', completed: false, category: 'Produce', source: 'recipe' },
-    { id: '2', name: 'Mozzarella cheese', completed: true, category: 'Dairy', source: 'recipe' },
-    { id: '3', name: 'San Marzano tomatoes', completed: false, category: 'Canned Goods', source: 'recipe' },
-    { id: '4', name: 'Extra virgin olive oil', completed: false, category: 'Oils & Condiments', source: 'recipe' },
-    { id: '5', name: 'Paper towels', completed: false, category: 'Household', source: 'manual' },
-    { id: '6', name: 'Apples', completed: false, category: 'Produce', source: 'manual' },
+  const [shoppingLists, setShoppingLists] = useState<ShoppingListData[]>([
+    {
+      id: '1',
+      name: 'Wocheneinkauf',
+      items: [
+        { id: '1', name: 'Fresh basil', completed: false, category: 'Produce', source: 'recipe' },
+        { id: '2', name: 'Mozzarella cheese', completed: true, category: 'Dairy', source: 'recipe' },
+        { id: '3', name: 'San Marzano tomatoes', completed: false, category: 'Canned Goods', source: 'recipe' },
+        { id: '4', name: 'Extra virgin olive oil', completed: false, category: 'Oils & Condiments', source: 'recipe' },
+        { id: '5', name: 'Paper towels', completed: false, category: 'Household', source: 'manual' },
+        { id: '6', name: 'Apples', completed: false, category: 'Produce', source: 'manual' },
+      ]
+    },
+    {
+      id: '2',
+      name: 'Party Einkauf',
+      items: [
+        { id: '7', name: 'Chips', completed: false, category: 'Snacks', source: 'manual' },
+        { id: '8', name: 'Bier', completed: false, category: 'Beverages', source: 'manual' },
+      ]
+    }
   ]);
+  const [currentListId, setCurrentListId] = useState('1');
   const [newItem, setNewItem] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All Lists');
+  const [newListName, setNewListName] = useState('');
+  const [isCreatingList, setIsCreatingList] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+
+  const currentList = shoppingLists.find(list => list.id === currentListId) || shoppingLists[0];
+  const items = currentList?.items || [];
 
   const shoppingCategories = [
     'Produce',
@@ -48,28 +73,72 @@ const ShoppingList = () => {
 
   const addItem = (category: string = 'Other') => {
     if (newItem.trim()) {
-      setItems(prev => [
-        ...prev,
-        { 
-          id: Date.now().toString(), 
-          name: newItem.trim(), 
-          completed: false, 
-          category, 
-          source: 'manual' 
-        }
-      ]);
+      setShoppingLists(prev => prev.map(list => 
+        list.id === currentListId 
+          ? {
+              ...list,
+              items: [
+                ...list.items,
+                { 
+                  id: Date.now().toString(), 
+                  name: newItem.trim(), 
+                  completed: false, 
+                  category, 
+                  source: 'manual' 
+                }
+              ]
+            }
+          : list
+      ));
       setNewItem('');
     }
   };
 
   const toggleItem = (id: string) => {
-    setItems(prev => prev.map(item =>
-      item.id === id ? { ...item, completed: !item.completed } : item
+    setShoppingLists(prev => prev.map(list => 
+      list.id === currentListId 
+        ? {
+            ...list,
+            items: list.items.map(item =>
+              item.id === id ? { ...item, completed: !item.completed } : item
+            )
+          }
+        : list
     ));
   };
 
   const removeItem = (id: string) => {
-    setItems(prev => prev.filter(item => item.id !== id));
+    setShoppingLists(prev => prev.map(list => 
+      list.id === currentListId 
+        ? {
+            ...list,
+            items: list.items.filter(item => item.id !== id)
+          }
+        : list
+    ));
+  };
+
+  const createNewList = () => {
+    if (newListName.trim()) {
+      const newList: ShoppingListData = {
+        id: Date.now().toString(),
+        name: newListName.trim(),
+        items: []
+      };
+      setShoppingLists(prev => [...prev, newList]);
+      setCurrentListId(newList.id);
+      setNewListName('');
+      setIsCreatingList(false);
+    }
+  };
+
+  const deleteList = (listId: string) => {
+    if (shoppingLists.length > 1) {
+      setShoppingLists(prev => prev.filter(list => list.id !== listId));
+      if (currentListId === listId) {
+        setCurrentListId(shoppingLists.find(list => list.id !== listId)?.id || shoppingLists[0].id);
+      }
+    }
   };
 
   const simulateScan = () => {
@@ -103,16 +172,23 @@ const ShoppingList = () => {
   };
 
   const addItemByName = (itemName: string, category: string = 'Other') => {
-    setItems(prev => [
-      ...prev,
-      { 
-        id: Date.now().toString(), 
-        name: itemName, 
-        completed: false, 
-        category, 
-        source: 'manual' 
-      }
-    ]);
+    setShoppingLists(prev => prev.map(list => 
+      list.id === currentListId 
+        ? {
+            ...list,
+            items: [
+              ...list.items,
+              { 
+                id: Date.now().toString(), 
+                name: itemName, 
+                completed: false, 
+                category, 
+                source: 'manual' 
+              }
+            ]
+          }
+        : list
+    ));
   };
 
   const resetScan = () => {
@@ -212,9 +288,87 @@ const ShoppingList = () => {
   return (
     <div className="pb-20 pt-4 px-4 max-w-md mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Shopping List</h1>
-        <p className="text-sm text-muted-foreground mt-1">Organized by category for easier shopping</p>
+        <h1 className="text-2xl font-bold text-foreground">Shopping Lists</h1>
+        <p className="text-sm text-muted-foreground mt-1">Manage multiple shopping lists</p>
       </div>
+
+      {/* List Management Section */}
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <List className="h-5 w-5 text-primary" />
+              <span className="font-semibold text-foreground">Current List:</span>
+            </div>
+            
+            <div className="flex gap-2">
+              <Select value={currentListId} onValueChange={setCurrentListId}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {shoppingLists.map(list => (
+                    <SelectItem key={list.id} value={list.id}>
+                      <div className="flex items-center justify-between w-full">
+                        <span>{list.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                          ({list.items.filter(item => !item.completed).length} items)
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {shoppingLists.length > 1 && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => deleteList(currentListId)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 size={16} />
+                </Button>
+              )}
+            </div>
+
+            {/* Create New List */}
+            {!isCreatingList ? (
+              <Button
+                variant="outline"
+                onClick={() => setIsCreatingList(true)}
+                className="w-full"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Neue Liste erstellen
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Liste Name..."
+                  value={newListName}
+                  onChange={(e) => setNewListName(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && createNewList()}
+                  className="flex-1"
+                />
+                <Button onClick={createNewList} size="icon">
+                  <Check size={16} />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => {
+                    setIsCreatingList(false);
+                    setNewListName('');
+                  }}
+                >
+                  <X size={16} />
+                </Button>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
       
       <div className="space-y-6">
         {/* Add new item */}
