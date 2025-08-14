@@ -57,10 +57,6 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
         <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           {/* Recipe Stats */}
           <div className="flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4 text-recipe-secondary" />
-              <span>{recipe.cookTime}m</span>
-            </div>
             <Badge 
               variant="secondary"
               className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 cursor-pointer transition-all duration-300 text-xs flex items-center gap-1"
@@ -77,6 +73,10 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
               )}
               {recipe.creator.name}
             </Badge>
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4 text-recipe-secondary" />
+              <span>{recipe.cookTime}m</span>
+            </div>
             <div className="flex items-center gap-1">
               <Users className="w-4 h-4 text-recipe-secondary" />
               <span>{recipe.servings} servings</span>
