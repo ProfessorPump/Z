@@ -63,10 +63,18 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
             </div>
             <Badge 
               variant="secondary"
-              className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 cursor-pointer transition-all duration-300 text-xs"
+              className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 cursor-pointer transition-all duration-300 text-xs flex items-center gap-1"
               onClick={() => navigate('/profile')}
             >
-              <User className="w-3 h-3 mr-1" />
+              {recipe.creator.avatar ? (
+                <img 
+                  src={recipe.creator.avatar} 
+                  alt={recipe.creator.name}
+                  className="w-4 h-4 rounded-full object-cover"
+                />
+              ) : (
+                <User className="w-3 h-3" />
+              )}
               {recipe.creator.name}
             </Badge>
             <div className="flex items-center gap-1">

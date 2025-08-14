@@ -41,7 +41,8 @@ export const sampleRecipes: Recipe[] = [
     country: 'italy',
     creator: {
       id: 'chef1',
-      name: 'Marco Rossi'
+      name: 'Marco Rossi',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face'
     }
   },
   {
@@ -79,7 +80,8 @@ export const sampleRecipes: Recipe[] = [
     country: 'italy',
     creator: {
       id: 'chef2',
-      name: 'Lucia Romano'
+      name: 'Lucia Romano',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b8cc?w=100&h=100&fit=crop&crop=face'
     }
   },
   {
@@ -118,7 +120,8 @@ export const sampleRecipes: Recipe[] = [
     country: 'usa',
     creator: {
       id: 'chef3',
-      name: 'Emma Thompson'
+      name: 'Emma Thompson',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face'
     }
   },
   {
@@ -158,7 +161,8 @@ export const sampleRecipes: Recipe[] = [
     country: 'france',
     creator: {
       id: 'chef4',
-      name: 'Pierre Dubois'
+      name: 'Pierre Dubois',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
     }
   }
 ];
