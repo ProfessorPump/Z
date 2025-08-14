@@ -397,23 +397,13 @@ const ShoppingList = () => {
               
               {!scanResult && !isScanning && (
                 <div className="space-y-3">
-                  <div className="flex flex-col gap-2">
-                    <Button 
-                      onClick={simulateScan}
-                      className="w-full"
-                    >
-                      <ScanLine className="mr-2 h-4 w-4" />
-                      Start Scanner
-                    </Button>
-                    
-                    <Button 
-                      variant="outline"
-                      className="w-full"
-                    >
-                      <Camera className="mr-2 h-4 w-4" />
-                      Upload from Gallery
-                    </Button>
-                  </div>
+                  <Button 
+                    onClick={simulateScan}
+                    className="w-full"
+                  >
+                    <ScanLine className="mr-2 h-4 w-4" />
+                    Start Scanner
+                  </Button>
                   
                   <Alert>
                     <AlertDescription className="text-sm text-center">
