@@ -14,4 +14,9 @@ export interface Recipe {
   mealType: 'homemade' | 'dine-out';
   dietaryPreferences: string[];
   country: string;
+  creator: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
 }

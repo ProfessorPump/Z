@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Recipe } from '@/types/recipe';
-import { Heart, Clock, Users, ChefHat, Utensils, Eye } from 'lucide-react';
+import { Heart, Clock, Users, ChefHat, Utensils, Eye, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -13,6 +15,7 @@ interface RecipeCardProps {
 export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const navigate = useNavigate();
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -46,6 +49,18 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
           onLoad={() => setImageLoaded(true)}
         />
         <div className="absolute inset-0 bg-gradient-overlay" />
+      </div>
+
+      {/* Profile Badge */}
+      <div className="absolute top-4 right-4 z-20">
+        <Badge 
+          variant="secondary"
+          className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 cursor-pointer transition-all duration-300"
+          onClick={() => navigate('/profile')}
+        >
+          <User className="w-3 h-3 mr-1" />
+          {recipe.creator.name}
+        </Badge>
       </div>
 
       {/* Content Overlay */}
