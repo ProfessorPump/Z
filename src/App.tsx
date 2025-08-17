@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import Index from "./pages/Index";
 import RecipeList from "./pages/RecipeList";
+import RecipeDetail from "./pages/RecipeDetail";
 import ShoppingList from "./pages/ShoppingList";
 import Scanner from "./pages/Scanner";
 import Profile from "./pages/Profile";
@@ -25,6 +26,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/recipes" element={<RecipeList />} />
+            <Route path="/recipe/:id" element={<RecipeDetail />} />
             <Route path="/shopping" element={<ShoppingList />} />
             <Route path="/create" element={<CreateContent />} />
             <Route path="/scanner" element={<Scanner />} />

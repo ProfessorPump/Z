@@ -113,11 +113,11 @@ export function RecipeCard({ recipe, onLike, isActive }: RecipeCardProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowDetails(!showDetails)}
+              onClick={() => navigate(`/recipe/${recipe.id}`)}
               className="flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30"
             >
               <Utensils className="w-4 h-4" />
-              {showDetails ? 'Hide Recipe' : 'View Recipe'}
+              View Recipe
             </Button>
           </div>
         </div>
