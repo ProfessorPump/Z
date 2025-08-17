@@ -5,8 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { sampleRecipes } from '@/data/recipes';
+import { useNavigate } from 'react-router-dom';
 
 const RecipeList = () => {
+  const navigate = useNavigate();
   const [likedRecipes] = useState(sampleRecipes.filter(recipe => recipe.isLiked));
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All Recipes');
@@ -82,7 +84,7 @@ const RecipeList = () => {
             </div>
           ) : (
             likedRecipes.map(recipe => (
-              <Card key={recipe.id} className="overflow-hidden">
+              <Card key={recipe.id} className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/recipe/${recipe.id}`)}>
                 <CardContent className="p-0">
                   <div className="flex">
                     <img
@@ -116,7 +118,7 @@ const RecipeList = () => {
         
         <TabsContent value="suggested" className="space-y-4 mt-6">
           {sampleRecipes.slice(0, 5).map(recipe => (
-            <Card key={recipe.id} className="overflow-hidden">
+            <Card key={recipe.id} className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/recipe/${recipe.id}`)}>
               <CardContent className="p-0">
                 <div className="flex">
                   <img
