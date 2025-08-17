@@ -1,5 +1,24 @@
 import { useState } from 'react';
-import { Plus, Check, X, ShoppingCart, ChevronDown, ScanLine, Camera, List, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Check, X, ShoppingCart, ChevronDown, ScanLine, Camera, List, Trash2, Edit2, GripVertical } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -51,6 +70,14 @@ const ShoppingList = () => {
   const [isCreatingList, setIsCreatingList] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [categoryOrder, setCategoryOrder] = useState<{[listId: string]: string[]}>({});
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const currentList = shoppingLists.find(list => list.id === currentListId) || shoppingLists[0];
   const items = currentList?.items || [];
@@ -199,8 +226,37 @@ const ShoppingList = () => {
   const recipeItems = items.filter(item => item.source === 'recipe');
   const manualItems = items.filter(item => item.source === 'manual');
   
+  // Handle drag end for category reordering
+  const handleDragEnd = (event: DragEndEvent, isRecipe: boolean) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const sectionKey = `${currentListId}-${isRecipe ? 'recipe' : 'manual'}`;
+    const currentOrder = categoryOrder[sectionKey] || [];
+    const itemsList = isRecipe ? recipeItems : manualItems;
+    const categories = groupItemsByCategory(itemsList).map(c => c.category);
+    
+    const oldIndex = currentOrder.indexOf(active.id as string) !== -1 
+      ? currentOrder.indexOf(active.id as string)
+      : categories.indexOf(active.id as string);
+    const newIndex = currentOrder.indexOf(over.id as string) !== -1 
+      ? currentOrder.indexOf(over.id as string)
+      : categories.indexOf(over.id as string);
+
+    const orderedCategories = currentOrder.length > 0 ? currentOrder : categories;
+    const newOrder = arrayMove(orderedCategories, oldIndex, newIndex);
+
+    setCategoryOrder(prev => ({
+      ...prev,
+      [sectionKey]: newOrder
+    }));
+  };
+
   // Group items by category for organized shopping
-  const groupItemsByCategory = (itemsList: ShoppingItem[]) => {
+  const groupItemsByCategory = (itemsList: ShoppingItem[], isRecipe: boolean = false) => {
     const grouped = itemsList.reduce((acc, item) => {
       if (!acc[item.category]) {
         acc[item.category] = [];
@@ -209,29 +265,63 @@ const ShoppingList = () => {
       return acc;
     }, {} as Record<string, ShoppingItem[]>);
     
-    // Sort categories by predefined order
-    const sortedCategories = shoppingCategories.filter(cat => grouped[cat]);
+    const sectionKey = `${currentListId}-${isRecipe ? 'recipe' : 'manual'}`;
+    const savedOrder = categoryOrder[sectionKey];
+    
+    // Sort categories by saved order or predefined order
+    const availableCategories = shoppingCategories.filter(cat => grouped[cat]);
+    const sortedCategories = savedOrder 
+      ? savedOrder.filter(cat => grouped[cat])
+      : availableCategories;
+    
     return sortedCategories.map(category => ({
       category,
       items: grouped[category].sort((a, b) => a.name.localeCompare(b.name))
     }));
   };
 
-  const renderCategorySection = (categoryData: {category: string, items: ShoppingItem[]}, isRecipe: boolean) => {
+  // Sortable Category Component
+  const SortableCategory = ({ categoryData, isRecipe }: { categoryData: {category: string, items: ShoppingItem[]}, isRecipe: boolean }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: categoryData.category });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
     const uncompleted = categoryData.items.filter(item => !item.completed);
     const completed = categoryData.items.filter(item => item.completed);
     
     if (uncompleted.length === 0 && completed.length === 0) return null;
 
     return (
-      <div key={categoryData.category} className="mb-4">
-        <h3 className={`text-sm font-semibold mb-2 px-2 py-1 rounded-md inline-block ${
-          isRecipe 
-            ? 'bg-primary/20 text-primary border border-primary/30' 
-            : 'bg-secondary/20 text-secondary border border-secondary/30'
-        }`}>
-          [{categoryData.category}]
-        </h3>
+      <div ref={setNodeRef} style={style} className="mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+          </Button>
+          <h3 className={`text-sm font-semibold px-2 py-1 rounded-md inline-block ${
+            isRecipe 
+              ? 'bg-primary/20 text-primary border border-primary/30' 
+              : 'bg-secondary/20 text-secondary border border-secondary/30'
+          }`}>
+            [{categoryData.category}]
+          </h3>
+        </div>
         <div className="space-y-2 ml-4">
           {/* Uncompleted items */}
           {uncompleted.map(item => (
@@ -462,9 +552,20 @@ const ShoppingList = () => {
                 {recipeItems.filter(item => !item.completed).length} von {recipeItems.length}
               </div>
             </div>
-            {groupItemsByCategory(recipeItems).map(categoryData => 
-              renderCategorySection(categoryData, true)
-            )}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(event) => handleDragEnd(event, true)}
+            >
+              <SortableContext
+                items={groupItemsByCategory(recipeItems, true).map(c => c.category)}
+                strategy={verticalListSortingStrategy}
+              >
+                {groupItemsByCategory(recipeItems, true).map(categoryData => 
+                  <SortableCategory key={categoryData.category} categoryData={categoryData} isRecipe={true} />
+                )}
+              </SortableContext>
+            </DndContext>
           </div>
         )}
 
@@ -477,9 +578,20 @@ const ShoppingList = () => {
                 {manualItems.filter(item => !item.completed).length} von {manualItems.length}
               </div>
             </div>
-            {groupItemsByCategory(manualItems).map(categoryData => 
-              renderCategorySection(categoryData, false)
-            )}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(event) => handleDragEnd(event, false)}
+            >
+              <SortableContext
+                items={groupItemsByCategory(manualItems, false).map(c => c.category)}
+                strategy={verticalListSortingStrategy}
+              >
+                {groupItemsByCategory(manualItems, false).map(categoryData => 
+                  <SortableCategory key={categoryData.category} categoryData={categoryData} isRecipe={false} />
+                )}
+              </SortableContext>
+            </DndContext>
           </div>
         )}
 
